@@ -33,6 +33,40 @@ body
   border-radius: 10px;
 }
 
+#clock
+{
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 50px;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+#date
+{
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 20px;
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.bookmarks-container
+{
+    position: relative;
+    top: 20px;
+}
+
+.content a
+{
+    color: rgba(255, 255, 255, 0.7);
+}
+
+hr
+{
+    height: 80px;
+    border: none;
+}
+
+/* old empty face
 .clock
 {
     flex-direction: row;
@@ -45,3 +79,4 @@ body
   background-color: rgba(0, 0, 0, 0.15);
   border-radius: 10px;
 }
+*/
