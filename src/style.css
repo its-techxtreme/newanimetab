@@ -91,6 +91,11 @@ body
     color: rgba(255, 255, 255, 0.7);
 }
 
+.content1 a
+{
+    text-decoration: none;
+}
+
 hr
 {
     height: 80px;
@@ -107,6 +112,7 @@ hr
     border: none;
     padding: 5px;
     border-radius: 10px;
+    padding-left: 5px;
 }
 
 .search-input::placeholder
