@@ -89,6 +89,11 @@ hr
     color: lightgray;
 }
 
+.bookmarks-container img
+{
+    height: 48px;
+}
+
 /* old empty face
 .clock
 {
