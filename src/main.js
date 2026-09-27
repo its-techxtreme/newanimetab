@@ -63,6 +63,22 @@ function updateDate() {
     document.getElementById('date').textContent = string;
 }
 
+// Google search function
+const searchInput = document.getElementById('query');
+
+function performSearch() {
+    const queryText = encodeURIComponent(searchInput.value.trim());
+        if (queryText !== "") {
+            window.location.href = `https://google.com/search?q=${queryText}`;
+            }
+        }
+
+searchInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+        performSearch();
+    }
+});
+
 updateDate();
 updateClock();
 

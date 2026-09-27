@@ -53,6 +53,12 @@ body
 {
     position: relative;
     top: 20px;
+    height: 100px;
+}
+
+.content p
+{
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .content a
@@ -64,6 +70,23 @@ hr
 {
     height: 80px;
     border: none;
+}
+
+.search-input
+{
+    z-index: 10;
+    width: 300px;
+    height: 25px;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    border: none;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.search-input::placeholder
+{
+    color: lightgray;
 }
 
 /* old empty face
