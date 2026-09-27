@@ -22,6 +22,8 @@
 let timeRemaining = 0;
 let intervalId;
 let paused = true;
+let beepId;
+let audioCtx;
 
 const display = document.getElementById('timer');
 const searchInput = document.getElementById('query');
@@ -44,6 +46,9 @@ const ppButton = document.getElementById('pp');
 ppButton.addEventListener('click', () => {
     if(paused === true) {
         paused = false;
+        if (!audioCtx) audioCtx = new AudioContext();
+        audioCtx.resume();
+        stopBeep();
         updateTimer(display);
         ppButton.textContent = "Pause"
 
@@ -63,6 +68,7 @@ resetButton.addEventListener('click', () => {
     timeRemaining = 0;
     ppButton.textContent = "Play"
     updateTimer(display)
+    stopBeep();
 });
 
 function updateClock() {
@@ -124,9 +130,10 @@ function startTimer(displayElement) {
                 clearInterval(intervalId);
                 intervalId = undefined;
                 displayElement.textContent = "00:00";
-                if(timeRemaining > 0) {
-                    timeRemaining = -1;
-                }
+                timeRemaining = 0;
+                paused = true;
+                ppButton.textContent = "Play"
+                startBeep();
             }
         } else {
             let minutes = Math.floor(timeRemaining / 60);
@@ -149,6 +156,35 @@ function updateTimer(displayElement) {
 
     displayElement.textContent = `${minutes}:${seconds}`;
 }
+
+function startBeep() {
+    if (beepId) return;
+    if (!audioCtx) audioCtx = new AudioContext();
+    audioCtx.resume();
+    document.getElementById('stop').style.display = "block";
+    beepId = setInterval(() => {
+        let o = audioCtx.createOscillator();
+        let g = audioCtx.createGain();
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.type = "square";
+        o.frequency.value = 880;
+        g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        o.start();
+        o.stop(audioCtx.currentTime + 0.12);
+    }, 500);
+}
+
+function stopBeep() {
+    clearInterval(beepId);
+    beepId = undefined;
+    document.getElementById('stop').style.display = "none";
+}
+
+const stopButton = document.getElementById('stop');
+stopButton.addEventListener('click', () => {
+    stopBeep();
+});
 
 function performSearch() {
     const queryText = encodeURIComponent(searchInput.value.trim());

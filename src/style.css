@@ -39,7 +39,7 @@ body
   margin: 15px;
   padding: 20px;
   width: 500px;
-  height: 150px;
+  height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -151,6 +151,21 @@ hr
 .large
 {
     font-size: 25px;
+}
+
+#stop
+{
+    display: none;
+    margin-top: 6px;
+    border: none;
+    border-radius: 10px;
+    font-family: monospace;
+    font-weight: bold;
+    background-color: rgba(160, 20, 20, 0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 14px;
 }
 
 /* old empty face
