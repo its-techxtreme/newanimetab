@@ -202,17 +202,29 @@ updateClock();
 setInterval(updateClock, 1000);
 updateTimer(display);
 
+// old local loops still in public/tunes
+// ["Rain desk", "rain-desk.wav"],
+// ["Night bus", "night-bus.wav"],
+// ["Soft keys", "soft-keys.wav"],
+// ["Tape hiss", "tape-hiss.wav"],
+// ["Window seat", "window-seat.wav"],
+// ["Late homework", "late-homework.wav"],
+// ["City rain", "city-rain.wav"],
+// ["Quiet room", "quiet-room.wav"],
+// ["Slow walk", "slow-walk.wav"],
+// ["Dim lamp", "dim-lamp.wav"],
+
 const tunes = [
-    ["Rain desk", "rain-desk.wav"],
-    ["Night bus", "night-bus.wav"],
-    ["Soft keys", "soft-keys.wav"],
-    ["Tape hiss", "tape-hiss.wav"],
-    ["Window seat", "window-seat.wav"],
-    ["Late homework", "late-homework.wav"],
-    ["City rain", "city-rain.wav"],
-    ["Quiet room", "quiet-room.wav"],
-    ["Slow walk", "slow-walk.wav"],
-    ["Dim lamp", "dim-lamp.wav"],
+    ["Rain desk", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"],
+    ["Night bus", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"],
+    ["Soft keys", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"],
+    ["Tape hiss", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"],
+    ["Window seat", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"],
+    ["Late homework", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"],
+    ["City rain", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3"],
+    ["Quiet room", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"],
+    ["Slow walk", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3"],
+    ["Dim lamp", "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3"],
 ];
 
 const mw = document.getElementById('mw');
@@ -276,9 +288,10 @@ for (let i = 0; i < tunes.length; i++) {
         if (cur) cur.classList.remove('on');
         b.classList.add('on');
         cur = b;
-        let root = import.meta.env.BASE_URL;
-        if (!root.endsWith("/")) root += "/";
-        song.src = root + "tunes/" + tunes[i][1];
+        // let root = import.meta.env.BASE_URL;
+        // if (!root.endsWith("/")) root += "/";
+        // song.src = root + "tunes/" + tunes[i][1];
+        song.src = tunes[i][1];
         song.loop = true;
         song.play();
     });
