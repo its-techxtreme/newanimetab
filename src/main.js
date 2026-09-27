@@ -201,3 +201,158 @@ updateClock();
 
 setInterval(updateClock, 1000);
 updateTimer(display);
+
+const tunes = [
+    ["Rain desk", "rain-desk.wav"],
+    ["Night bus", "night-bus.wav"],
+    ["Soft keys", "soft-keys.wav"],
+    ["Tape hiss", "tape-hiss.wav"],
+    ["Window seat", "window-seat.wav"],
+    ["Late homework", "late-homework.wav"],
+    ["City rain", "city-rain.wav"],
+    ["Quiet room", "quiet-room.wav"],
+    ["Slow walk", "slow-walk.wav"],
+    ["Dim lamp", "dim-lamp.wav"],
+];
+
+const mw = document.getElementById('mw');
+const mlist = document.getElementById('mlist');
+const song = new Audio();
+let cur = null;
+let spotOn = false;
+let spotPlay = false;
+let spotCtrl = null;
+
+function hideMusic() {
+    if (spotPlay) {
+        mw.dataset.l = mw.style.left;
+        mw.dataset.t = mw.style.top;
+        mw.dataset.r = mw.style.right;
+        mw.style.left = "-4000px";
+        mw.style.top = "0px";
+        mw.style.right = "auto";
+        mw.style.display = "block";
+        return;
+    }
+    closeSpot();
+    mw.style.display = "none";
+}
+
+function showMusic() {
+    mw.style.display = "block";
+    if (mw.style.left == "-4000px") {
+        mw.style.left = mw.dataset.l || "";
+        mw.style.top = mw.dataset.t || "";
+        mw.style.right = mw.dataset.r || "40px";
+    }
+}
+
+document.getElementById('mu').addEventListener('click', () => {
+    if (mw.style.display == "block" && mw.style.left != "-4000px") {
+        hideMusic();
+    } else {
+        showMusic();
+    }
+});
+
+document.getElementById('mx').addEventListener('click', (e) => {
+    e.stopPropagation();
+    hideMusic();
+});
+
+document.getElementById('mstop').addEventListener('click', (e) => {
+    e.stopPropagation();
+    song.pause();
+    song.currentTime = 0;
+    if (cur) cur.classList.remove('on');
+    cur = null;
+    closeSpot();
+});
+
+for (let i = 0; i < tunes.length; i++) {
+    let b = document.createElement('button');
+    b.textContent = tunes[i][0];
+    b.addEventListener('click', () => {
+        if (cur) cur.classList.remove('on');
+        b.classList.add('on');
+        cur = b;
+        let root = import.meta.env.BASE_URL;
+        if (!root.endsWith("/")) root += "/";
+        song.src = root + "tunes/" + tunes[i][1];
+        song.loop = true;
+        song.play();
+    });
+    mlist.appendChild(b);
+}
+
+function closeSpot() {
+    if (spotCtrl) {
+        spotCtrl.pause();
+        if (spotCtrl.destroy) spotCtrl.destroy();
+    }
+    spotCtrl = null;
+    spotPlay = false;
+    spotOn = false;
+    document.getElementById('mbox').innerHTML = "";
+    document.getElementById('mspot').textContent = "Open Spotify";
+}
+
+function openSpot() {
+    let box = document.getElementById('mbox');
+    let el = document.createElement('div');
+    el.id = "spot";
+    box.appendChild(el);
+    spotOn = true;
+    document.getElementById('mspot').textContent = "Close Spotify";
+
+    const go = (api) => {
+        api.createController(el, {
+            uri: "spotify:playlist:37i9dQZF1DWWQRwui0ExPn",
+            width: "100%",
+            height: 152,
+        }, (ctrl) => {
+            spotCtrl = ctrl;
+            ctrl.addListener('playback_update', (e) => {
+                let d = e.data;
+                spotPlay = d.isPaused === false;
+                if (d.duration && d.position > d.duration - 900 && d.isPaused) {
+                    ctrl.play();
+                }
+            });
+        });
+    };
+
+    if (window._spotApi) go(window._spotApi);
+    else window.onSpotifyIframeApiReady = (api) => {
+        window._spotApi = api;
+        go(api);
+    };
+}
+
+document.getElementById('mspot').addEventListener('click', () => {
+    if (spotOn) closeSpot();
+    else openSpot();
+});
+
+let dragging = false;
+let ox = 0;
+let oy = 0;
+const mbar = document.getElementById('mbar');
+
+mbar.addEventListener('mousedown', (e) => {
+    if (e.target.id == "mx" || e.target.id == "mstop") return;
+    dragging = true;
+    ox = e.clientX - mw.offsetLeft;
+    oy = e.clientY - mw.offsetTop;
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    mw.style.left = (e.clientX - ox) + "px";
+    mw.style.top = (e.clientY - oy) + "px";
+    mw.style.right = "auto";
+});
+
+document.addEventListener('mouseup', () => {
+    dragging = false;
+});
