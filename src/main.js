@@ -19,6 +19,52 @@
 //     document.querySelector("#app").innerHTML = `<p>Error: ${err.message}</p>`;
 //   });
 
+let timeRemaining = 0;
+let intervalId;
+let paused = true;
+
+const display = document.getElementById('timer');
+const searchInput = document.getElementById('query');
+
+const plusButton = document.getElementById('plus');
+plusButton.addEventListener('click', () => {
+    timeRemaining += 60;
+    updateTimer(display);
+});
+
+const minusButton = document.getElementById('minus');
+minusButton.addEventListener('click', () => {
+    if(timeRemaining > 59) {
+        timeRemaining -= 60;
+        updateTimer(display);
+    }
+});
+
+const ppButton = document.getElementById('pp');
+ppButton.addEventListener('click', () => {
+    if(paused === true) {
+        paused = false;
+        updateTimer(display);
+        ppButton.textContent = "Pause"
+
+        if (intervalId === undefined) {
+            startTimer(display);
+        }
+    } else {
+        paused = true;
+        updateTimer(display);
+        ppButton.textContent = "Play"
+    }
+});
+
+const resetButton = document.getElementById('reset');
+resetButton.addEventListener('click', () => {
+    paused = true;
+    timeRemaining = 0;
+    ppButton.textContent = "Play"
+    updateTimer(display)
+});
+
 function updateClock() {
     const now = new Date();
 
@@ -51,20 +97,58 @@ function updateClock() {
 function updateDate() {
     const now = new Date();
 
-    let day = now.getDay();
-    let month = now.getMonth();
+    let day = now.getDate();
+    let month = now.getMonth() + 1;
     let year = now.getFullYear();
 
     day = String(day).padStart(2, '0');
     month = String(month).padStart(2, '0');
 
-    const string = `${day}/${month}/${year}`;
+    const string = `${month}/${day}/${year}`;
 
     document.getElementById('date').textContent = string;
 }
 
-// Google search function
-const searchInput = document.getElementById('query');
+function startTimer(displayElement) {
+    intervalId = setInterval(() => {
+        if(paused === false) {
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+
+            minutes = String(minutes).padStart(2, '0');
+            seconds = String(seconds).padStart(2, '0');
+
+            displayElement.textContent = `${minutes}:${seconds}`;
+
+            if (--timeRemaining < 0) {
+                clearInterval(intervalId);
+                intervalId = undefined;
+                displayElement.textContent = "00:00";
+                if(timeRemaining > 0) {
+                    timeRemaining = -1;
+                }
+            }
+        } else {
+            let minutes = Math.floor(timeRemaining / 60);
+            let seconds = timeRemaining % 60;
+
+            minutes = String(minutes).padStart(2, '0');
+            seconds = String(seconds).padStart(2, '0');
+
+            displayElement.textContent = `${minutes}:${seconds}`;
+        }
+    }, 1000);
+}
+
+function updateTimer(displayElement) {
+    let minutes = Math.floor(timeRemaining / 60);
+    let seconds = timeRemaining % 60;
+
+    minutes = String(minutes).padStart(2, '0');
+    seconds = String(seconds).padStart(2, '0');
+
+    displayElement.textContent = `${minutes}:${seconds}`;
+}
 
 function performSearch() {
     const queryText = encodeURIComponent(searchInput.value.trim());
@@ -83,3 +167,4 @@ updateDate();
 updateClock();
 
 setInterval(updateClock, 1000);
+startTimer(display);
