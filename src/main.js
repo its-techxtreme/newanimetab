@@ -24,6 +24,7 @@ let intervalId;
 let paused = true;
 let beepId;
 let audioCtx;
+let editing = false;
 
 const display = document.getElementById('timer');
 const searchInput = document.getElementById('query');
@@ -117,27 +118,21 @@ function updateDate() {
 
 function startTimer(displayElement) {
     intervalId = setInterval(() => {
+        if (editing) return;
         if (paused === false) {
             if (timeRemaining <= 0) {
                 timeRemaining = 0;
                 clearInterval(intervalId);
                 intervalId = undefined;
-                displayElement.textContent = "00:00";
                 paused = true;
                 ppButton.textContent = "Play"
+                updateTimer(displayElement);
                 startBeep();
                 return;
             }
 
             timeRemaining--;
-
-            let minutes = Math.floor(timeRemaining / 60);
-            let seconds = timeRemaining % 60;
-
-            minutes = String(minutes).padStart(2, '0');
-            seconds = String(seconds).padStart(2, '0');
-
-            displayElement.textContent = `${minutes}:${seconds}`;
+            updateTimer(displayElement);
         } else {
             updateTimer(displayElement);
         }
@@ -145,14 +140,66 @@ function startTimer(displayElement) {
 }
 
 function updateTimer(displayElement) {
-    let minutes = Math.floor(timeRemaining / 60);
-    let seconds = timeRemaining % 60;
+    let t = timeRemaining;
+    if (t < 0) t = 0;
+    let h = Math.floor(t / 3600);
+    let m = Math.floor((t % 3600) / 60);
+    let s = t % 60;
 
-    minutes = String(minutes).padStart(2, '0');
-    seconds = String(seconds).padStart(2, '0');
+    h = String(h).padStart(2, '0');
+    m = String(m).padStart(2, '0');
+    s = String(s).padStart(2, '0');
 
-    displayElement.textContent = `${minutes}:${seconds}`;
+    displayElement.textContent = h + ":" + m + ":" + s;
 }
+
+display.addEventListener('click', () => {
+    if (editing) return;
+    editing = true;
+    paused = true;
+    ppButton.textContent = "Play";
+    let inp = document.createElement('input');
+    inp.value = display.textContent;
+    display.textContent = "";
+    display.appendChild(inp);
+    inp.focus();
+    inp.select();
+    let finish = (keep) => {
+        if (!editing) return;
+        editing = false;
+        if (keep) {
+            let raw = inp.value.trim();
+            let bits = raw.split(":");
+            let h = 0;
+            let m = 0;
+            let s = 0;
+            if (bits.length >= 3) {
+                h = parseInt(bits[0], 10);
+                m = parseInt(bits[1], 10);
+                s = parseInt(bits[2], 10);
+            } else if (bits.length == 2) {
+                m = parseInt(bits[0], 10);
+                s = parseInt(bits[1], 10);
+            } else {
+                m = parseInt(raw, 10);
+            }
+            if (isNaN(h)) h = 0;
+            if (isNaN(m)) m = 0;
+            if (isNaN(s)) s = 0;
+            if (h < 0) h = 0;
+            if (m < 0) m = 0;
+            if (s < 0) s = 0;
+            timeRemaining = h * 3600 + m * 60 + s;
+        }
+        stopBeep();
+        updateTimer(display);
+    };
+    inp.addEventListener('keydown', (e) => {
+        if (e.key == "Enter") finish(true);
+        if (e.key == "Escape") finish(false);
+    });
+    inp.addEventListener('blur', () => finish(true));
+});
 
 function startBeep() {
     if (beepId) return;
@@ -199,7 +246,10 @@ searchInput.addEventListener('keydown', function(event) {
 updateDate();
 updateClock();
 
-setInterval(updateClock, 1000);
+setInterval(() => {
+    updateClock();
+    updateDate();
+}, 1000);
 updateTimer(display);
 
 // old local loops still in public/tunes
@@ -229,7 +279,7 @@ const tunes = [
 
 const mw = document.getElementById('mw');
 const mlist = document.getElementById('mlist');
-const song = new Audio();
+let song = new Audio();
 let cur = null;
 let spotOn = false;
 let spotPlay = false;
@@ -291,9 +341,15 @@ for (let i = 0; i < tunes.length; i++) {
         // let root = import.meta.env.BASE_URL;
         // if (!root.endsWith("/")) root += "/";
         // song.src = root + "tunes/" + tunes[i][1];
-        song.src = tunes[i][1];
+        song.pause();
+        song = new Audio();
         song.loop = true;
-        song.play();
+        song.src = tunes[i][1];
+        let p = song.play();
+        if (p) p.catch(() => {
+            b.classList.remove('on');
+            if (cur == b) cur = null;
+        });
     });
     mlist.appendChild(b);
 }
@@ -320,7 +376,7 @@ function openSpot() {
 
     const go = (api) => {
         api.createController(el, {
-            uri: "spotify:playlist:37i9dQZF1DWWQRwui0ExPn",
+            uri: "spotify:playlist:79FMSJmmkwHxTngEM7fxr6",
             width: "100%",
             height: 152,
         }, (ctrl) => {
@@ -328,9 +384,6 @@ function openSpot() {
             ctrl.addListener('playback_update', (e) => {
                 let d = e.data;
                 spotPlay = d.isPaused === false;
-                if (d.duration && d.position > d.duration - 900 && d.isPaused) {
-                    ctrl.play();
-                }
             });
         });
     };

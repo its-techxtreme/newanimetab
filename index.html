@@ -33,7 +33,7 @@
         <div class="horizontal">
           <button class="large" id="minus">-</button>
           <button id="pp">Play</button>
-          <div id="timer">--:--</div>
+          <div id="timer">--:--:--</div>
           <button id="reset">Reset</button>
           <button class="large" id="plus">+</button>
         </div>
@@ -53,6 +53,11 @@
       <button id="mspot">Open Spotify</button>
       <div id="mbox"></div>
     </div>
+    <script>
+      window.onSpotifyIframeApiReady = function (api) {
+        window._spotApi = api;
+      };
+    </script>
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
     <script type="module" src="/src/main.js"></script>
   </body>
